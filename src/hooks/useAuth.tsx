@@ -1,40 +1,39 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+// src/hooks/useAuth.tsx
+import {
+  useAuth as useClerkAuth,
+  useUser,
+} from "@clerk/clerk-react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+type RoleType = 'buyer' | 'agent' | 'host' | 'professional' | 'admin' | null;
+
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: ReturnType<typeof useUser>['user'];
   isAuthenticated: boolean;
-  userRole: 'user' | 'agent' | 'admin' | null;
+  userRole: RoleType;
   isAgent: boolean;
   isAdmin: boolean;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
-  refreshRole: () => Promise<void>;
-  mockSignIn: (role?: 'user' | 'agent' | 'professional') => Promise<{ error: Error | null }>;
   viewMode: 'buyer' | 'renter';
   toggleViewMode: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// ─── Provider ─────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [userRole, setUserRole] = useState<'user' | 'agent' | 'admin' | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { isLoaded, isSignedIn, signOut: clerkSignOut } = useClerkAuth();
+  const { user } = useUser();
   const navigate = useNavigate();
 
-  // --- View Mode Toggle (Buyer/Renter) ---
   const [viewMode, setViewMode] = useState<'buyer' | 'renter'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('user_view_mode');
-      return (saved === 'buyer' || saved === 'renter') ? saved : 'buyer';
+      return saved === 'buyer' || saved === 'renter' ? saved : 'buyer';
     }
     return 'buyer';
   });
@@ -48,110 +47,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  useEffect(() => {
-    // Initial state: not logged in for mock build
-    setLoading(false);
-  }, []);
-
-  const fetchUserRole = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching role:', error);
-      } else {
-        setUserRole(data?.role as 'user' | 'agent' | 'admin');
-      }
-    } catch (e) {
-      console.error('Exception fetching role:', e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signIn = async (email: string, password: string) => {
-    return mockSignIn('user');
-  };
-
-  const signUp = async (email: string, password: string, fullName: string) => {
-    return mockSignIn('user');
-  };
-
   const signOut = async () => {
-    // Clear local state
-    setUser(null);
-    setSession(null);
-    setUserRole(null);
-    
-    // Clear any local storage
-    localStorage.removeItem('supabase.auth.token');
-    
-    toast.success("Successfully signed out");
-    navigate("/auth");
+    await clerkSignOut();
+    navigate('/');
+    toast.success('Successfully signed out');
   };
 
-  const refreshRole = async () => {
-    if (user) {
-      await fetchUserRole(user.id);
-    }
-  };
-
-  const mockSignIn = async (role: 'user' | 'agent' | 'professional' = 'user') => {
-    setLoading(true);
-    // Simulate a user object
-    const mockUser = {
-      id: 'mock-id',
-      email: 'mock@example.com',
-      user_metadata: { full_name: 'Mock User' }
-    } as any;
-    
-    const mockSession = {
-      user: mockUser,
-      access_token: 'mock-token',
-    } as any;
-
-    setSession(mockSession);
-    setUser(mockUser);
-    setUserRole(role as any); // Use the provided role directly
-    setLoading(false);
-    
-    return { error: null };
-  };
-
-  const isAuthenticated = !!session;
+  // Derive role from Clerk unsafeMetadata
+  const userRole = (user?.unsafeMetadata?.role as RoleType) ?? null;
+  const isAuthenticated = !!isSignedIn;
   const isAgent = userRole === 'agent' || userRole === 'admin';
   const isAdmin = userRole === 'admin';
+  const loading = !isLoaded;
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      isAuthenticated,
-      userRole,
-      isAgent,
-      isAdmin,
-      loading,
-      signIn,
-      signUp,
-      signOut,
-      refreshRole,
-      mockSignIn,
-      viewMode,
-      toggleViewMode
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        userRole,
+        isAgent,
+        isAdmin,
+        loading,
+        signOut,
+        viewMode,
+        toggleViewMode,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
