@@ -71,7 +71,10 @@ const App = () => {
                 <AuthProvider>
                   <ScrollToTopHandler />
                   <ScrollToTop />
-                  <Routes>
+                  
+                  <ErrorBoundary fallback={<div>Something went wrong. Please refresh.</div>}>
+                    <Suspense fallback={<Preloader />}>
+                      <Routes>
 
                     {/* ─── Public Routes ─────────────────────────────── */}
                     <Route element={<MainLayout />}>
@@ -158,7 +161,9 @@ const App = () => {
                     <Route path="/unauthorized" element={<Unauthorized />} />
                     <Route path="*" element={<NotFound />} />
 
-                  </Routes>
+                   </Routes>
+                  </Suspense>
+                 </ErrorBoundary>
                 </AuthProvider>
               </BrowserRouter>
             </LocationAgentProvider>
