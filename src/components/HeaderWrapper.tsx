@@ -1,4 +1,5 @@
 // src/components/HeaderWrapper.tsx
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { TopHeaderBar } from "@/components/TopHeaderBar";
@@ -6,13 +7,17 @@ import DashboardHeader from "@/components/DashboardHeader";
 import { cn } from "@/lib/utils";
 
 interface HeaderWrapperProps {
-  isScrolled?: boolean;  // ← was required, now optional (default false)
+  isScrolled?: boolean;
   onOpenTrip?: () => void;
 }
 
-export function HeaderWrapper({ isScrolled = false }: HeaderWrapperProps) {
+export default function HeaderWrapper({
+  isScrolled = false,
+}: HeaderWrapperProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
 
   useEffect(() => {
     setSearchTerm(searchParams.get("search") || "");
@@ -20,11 +25,13 @@ export function HeaderWrapper({ isScrolled = false }: HeaderWrapperProps) {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
+
     if (term) {
       setSearchParams({ search: term });
     } else {
-      searchParams.delete("search");
-      setSearchParams(searchParams);
+      const params = new URLSearchParams(searchParams);
+      params.delete("search");
+      setSearchParams(params);
     }
   };
 
@@ -38,6 +45,7 @@ export function HeaderWrapper({ isScrolled = false }: HeaderWrapperProps) {
             : "bg-background shadow-sm"
         )}
       >
+        {/* Top announcement / info bar */}
         <div
           className={cn(
             "w-full overflow-hidden transition-[height,opacity] duration-150 ease-out",
@@ -48,6 +56,8 @@ export function HeaderWrapper({ isScrolled = false }: HeaderWrapperProps) {
             <TopHeaderBar />
           </div>
         </div>
+
+        {/* Main dashboard header */}
         <DashboardHeader
           searchTerm={searchTerm}
           onSearchChange={handleSearch}
