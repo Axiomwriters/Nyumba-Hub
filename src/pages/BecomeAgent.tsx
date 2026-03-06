@@ -43,8 +43,13 @@ export default function BecomeAgent() {
             // 2. Update User Role
             const { error: profileError } = await supabase
                 .from("profiles")
-                .update({ role: "agent" })
-                .eq("id", user.id);
+                .upsert({ 
+                    id: user.id,
+                    role: "agent"
+            // include other required non-null columns here
+                }, { 
+                    onConflict: "id"
+                });
 
             if (profileError) throw profileError;
 
