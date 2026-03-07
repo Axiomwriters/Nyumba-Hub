@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { TopHeaderBar } from "@/components/TopHeaderBar";
 import DashboardHeader from "@/components/DashboardHeader";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface HeaderWrapperProps {
   isScrolled?: boolean;
@@ -16,6 +17,8 @@ export function HeaderWrapper({
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("search") || ""
   );
+  const { state: sidebarState } = useSidebar();
+  const isSidebarCollapsed = sidebarState === "collapsed";
 
   useEffect(() => {
     setSearchTerm(searchParams.get("search") || "");
@@ -34,33 +37,31 @@ export function HeaderWrapper({
   };
 
   return (
-    <div className="flex flex-col w-full z-[60] top-0">
+    <div
+      className={cn(
+        "w-full border-b border-border/40 transition-all duration-150 ease-out",
+        isScrolled
+          ? "bg-background/80 backdrop-blur-md shadow-md"
+          : "bg-background shadow-sm"
+      )}
+    >
+      {/* Top announcement / info bar */}
       <div
         className={cn(
-          "w-full border-b border-border/40 transition-all duration-150 ease-out",
-          isScrolled
-            ? "bg-background/80 backdrop-blur-md shadow-md"
-            : "bg-background shadow-sm"
+          "w-full overflow-hidden transition-[height,opacity] duration-150 ease-out",
+          isScrolled ? "h-0 opacity-0" : "h-[40px] opacity-100"
         )}
       >
-        {/* Top announcement / info bar */}
-        <div
-          className={cn(
-            "w-full overflow-hidden transition-[height,opacity] duration-150 ease-out",
-            isScrolled ? "h-0 opacity-0" : "h-[40px] opacity-100"
-          )}
-        >
-          <div className="border-b border-border/10">
-            <TopHeaderBar />
-          </div>
+        <div className="border-b border-border/10">
+          <TopHeaderBar />
         </div>
-
-        {/* Main dashboard header */}
-        <DashboardHeader
-          searchTerm={searchTerm}
-          onSearchChange={handleSearch}
-        />
       </div>
+
+      {/* Main dashboard header */}
+      <DashboardHeader
+        searchTerm={searchTerm}
+        onSearchChange={handleSearch}
+      />
     </div>
   );
 }
