@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import Searchbar from './Searchbar';
 
 interface DashboardHeaderProps {
   searchTerm: string;
@@ -24,6 +26,9 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ searchTerm, onSearchC
             Nakuru's Premier Property Platform
           </p>
         </div>
+      </div>
+      <div className="flex-1 max-w-lg px-4">
+        <Searchbar searchTerm={searchTerm} onSearchChange={onSearchChange} />
       </div>
       <div className="flex items-center gap-4">
         <Button

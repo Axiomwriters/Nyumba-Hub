@@ -1,3 +1,4 @@
+
 // src/App.tsx — COMPLETE FILE
 import { useState, useEffect, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
@@ -18,7 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import ExplorePage from "./pages/ExplorePage";
 import BecomeAgent from "./pages/BecomeAgent";
 import HydrateData from "./pages/HydrateData";
-import Properties from "./pages/Properties";
+import Listings from "./pages/Listings";
 import PropertyDetail from "./pages/PropertyDetail";
 import AffordabilityPage from "./pages/AffordabilityPage";
 import AdminLogin from "./pages/AdminLogin";
@@ -80,8 +81,8 @@ const App = () => {
                     {/* ─── Public Routes ─────────────────────────────── */}
                     <Route element={<MainLayout />}>
                       <Route path="/" element={<Dashboard />} />
-                      <Route path="/properties" element={<Properties />} />
-                      <Route path="/properties/:id" element={<PropertyDetail />} />
+                      <Route path="/listings" element={<Listings />} />
+                      <Route path="/listings/:id" element={<PropertyDetail />} />
                       <Route path="/explore/:category" element={<ExplorePage />} />
                       <Route path="/affordability" element={<AffordabilityPage />} />
                       <Route path="/shop/building-materials" element={<BuildingMaterialsShop />} />

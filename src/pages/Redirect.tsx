@@ -1,8 +1,10 @@
+
 // src/pages/Redirect.tsx — Role sync + Supabase profile upsert + welcome email
 import { useUser }       from "@clerk/clerk-react";
 import { useNavigate }   from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { supabase }      from "@/integrations/supabase/client";
+import { getSelectedRole, clearSelectedRole } from "@/utils/role-selection"; // Import the utilities
 
 export default function Redirect() {
   const { user, isLoaded, isSignedIn } = useUser();
@@ -19,7 +21,7 @@ export default function Redirect() {
         let role = user.unsafeMetadata?.role as string | undefined;
 
         if (!role) {
-          role = localStorage.getItem('selectedRole') || 'buyer';
+          role = getSelectedRole() || 'buyer'; // Use the utility
           await user.update({
             unsafeMetadata: {
               role,
@@ -29,13 +31,10 @@ export default function Redirect() {
           await user.reload();
         }
 
-        localStorage.removeItem('selectedRole');
+        clearSelectedRole(); // Clean up the cookie and localStorage
         processed.current = true;
 
         /* ─── 2. Upsert Supabase profile ──────────────────── */
-        // NOTE: This uses the anon key. The profiles table must allow
-        // public inserts OR you should use the Edge Function approach.
-        // See supabase/functions/sync-profile for the secure version.
         const primaryEmail = user.primaryEmailAddress?.emailAddress ?? '';
         await supabase
           .from('profiles')

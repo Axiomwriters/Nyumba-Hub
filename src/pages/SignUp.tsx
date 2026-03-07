@@ -1,65 +1,67 @@
-// src/pages/SignUp.tsx — Headless Clerk with custom UI
-import { useSignUp } from '@clerk/clerk-react'
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { toast } from 'sonner'
-import { Eye, EyeOff, Home, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
-type Step = 'role' | 'credentials' | 'verify'
+// src/pages/SignUp.tsx — Headless Clerk with custom UI
+import { useSignUp } from '@clerk/clerk-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { Eye, EyeOff, Home, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { setSelectedRole } from '@/utils/role-selection'; // Import the utility
+
+type Step = 'role' | 'credentials' | 'verify';
 
 const ROLES = [
   { value: 'buyer',        label: ' Buyer / Renter',     desc: 'Browse & save properties' },
   { value: 'agent',        label: ' Real Estate Agent',  desc: 'List & manage properties' },
   { value: 'host',         label: ' AirBnb Host',    desc: 'List vacation & short-stay rentals' },
   { value: 'professional', label: ' Professional',        desc: 'Offer property-related services' },
-]
+];
 
 export default function SignUpPage() {
-  const { isLoaded, signUp, setActive } = useSignUp()
-  const navigate = useNavigate()
+  const { isLoaded, signUp, setActive } = useSignUp();
+  const navigate = useNavigate();
 
-  const [step, setStep]               = useState<Step>('role')
-  const [selectedRole, setSelectedRole] = useState('buyer')
-  const [firstName, setFirstName]     = useState('')
-  const [lastName, setLastName]       = useState('')
-  const [email, setEmail]             = useState('')
-  const [password, setPassword]       = useState('')
-  const [code, setCode]               = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading]         = useState(false)
+  const [step, setStep] = useState<Step>('role');
+  const [selectedRole, setRole] = useState('buyer'); // Renamed to avoid conflict
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   /* ── STEP 1: Role selection ─────────────────────────── */
   const handleRoleContinue = () => {
-    localStorage.setItem('selectedRole', selectedRole)
-    setStep('credentials')
-  }
+    setSelectedRole(selectedRole); // Use the utility
+    setStep('credentials');
+  };
 
   /* ── STEP 2a: Google OAuth ──────────────────────────── */
   const handleGoogleSignUp = async () => {
-    if (!isLoaded) return
-    setLoading(true)
+    if (!isLoaded) return;
+    setLoading(true);
     try {
-      localStorage.setItem('selectedRole', selectedRole)
+      setSelectedRole(selectedRole); // Use the utility
       await signUp.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectUrlComplete: '/redirect',
-      })
+      });
     } catch (err: any) {
-      toast.error(err.errors?.[0]?.message ?? 'Google sign-up failed')
-      setLoading(false)
+      toast.error(err.errors?.[0]?.message ?? 'Google sign-up failed');
+      setLoading(false);
     }
-  }
+  };
 
   /* ── STEP 2b: Email / Password ──────────────────────── */
   const handleEmailSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!isLoaded) return
-    setLoading(true)
+    e.preventDefault();
+    if (!isLoaded) return;
+    setLoading(true);
     try {
       await signUp.create({
         firstName,
@@ -70,36 +72,36 @@ export default function SignUpPage() {
           role: selectedRole,
           onboardingComplete: false,
         },
-      })
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
-      toast.success('Verification code sent to your email!')
-      setStep('verify')
+      });
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+      toast.success('Verification code sent to your email!');
+      setStep('verify');
     } catch (err: any) {
-      toast.error(err.errors?.[0]?.message ?? 'Sign-up failed. Please try again.')
+      toast.error(err.errors?.[0]?.message ?? 'Sign-up failed. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   /* ── STEP 3: Verify email code ──────────────────────── */
   const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!isLoaded) return
-    setLoading(true)
+    e.preventDefault();
+    if (!isLoaded) return;
+    setLoading(true);
     try {
-      const result = await signUp.attemptEmailAddressVerification({ code })
+      const result = await signUp.attemptEmailAddressVerification({ code });
       if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId })
-        navigate('/redirect', { replace: true })
+        await setActive({ session: result.createdSessionId });
+        navigate('/redirect', { replace: true });
       } else {
-        toast.error('Verification incomplete. Check your code and try again.')
+        toast.error('Verification incomplete. Check your code and try again.');
       }
     } catch (err: any) {
-      toast.error(err.errors?.[0]?.message ?? 'Verification failed.')
+      toast.error(err.errors?.[0]?.message ?? 'Verification failed.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   /* ── Shared layout wrapper ──────────────────────────── */
   const Shell = ({ children }: { children: React.ReactNode }) => (
@@ -134,7 +136,7 @@ export default function SignUpPage() {
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-[100px] animate-pulse" />
       </div>
     </div>
-  )
+  );
 
   /* ── RENDER: Step 1 — Role ──────────────────────────── */
   if (step === 'role') {
@@ -148,7 +150,7 @@ export default function SignUpPage() {
             <button
               key={r.value}
               type="button"
-              onClick={() => setSelectedRole(r.value)}
+              onClick={() => setRole(r.value)} // Use renamed state setter
               className={cn(
                 'flex items-start gap-3 p-3 rounded-xl border text-left transition-all',
                 selectedRole === r.value
@@ -177,7 +179,7 @@ export default function SignUpPage() {
           <Link to="/sign-in" className="text-primary hover:underline font-medium">Sign in</Link>
         </p>
       </Shell>
-    )
+    );
   }
 
   /* ── RENDER: Step 2 — Credentials ───────────────────── */
@@ -262,7 +264,7 @@ export default function SignUpPage() {
           <Link to="/sign-in" className="text-primary hover:underline">Sign in</Link>
         </p>
       </Shell>
-    )
+    );
   }
 
   /* ── RENDER: Step 3 — Verify ─────────────────────────── */
@@ -294,13 +296,13 @@ export default function SignUpPage() {
         <button
           className="text-primary hover:underline"
           onClick={async () => {
-            await signUp?.prepareEmailAddressVerification({ strategy: 'email_code' })
-            toast.success('New code sent!')
+            await signUp?.prepareEmailAddressVerification({ strategy: 'email_code' });
+            toast.success('New code sent!');
           }}
         >
           Resend code
         </button>
       </p>
     </Shell>
-  )
+  );
 }

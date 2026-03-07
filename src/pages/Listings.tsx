@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 23; // Adjusted to make room for CTA card in a 24-grid layout logic if needed, or just append.
 
-export default function Properties() {
+export default function Listings() {
   const [searchTerm, setSearchTerm] = useState("");
   const [listingType, setListingType] = useState<"all" | "sale" | "rent">("all");
   const [propertyCategory, setPropertyCategory] = useState<"all" | "house" | "land" | "commercial">("all");
@@ -197,7 +197,7 @@ export default function Properties() {
                       priceFormatted: `KSh ${property.price.toLocaleString()}`,
                       location: property.location,
                       images: property.images || [],
-                      propertyUrl: `/properties/${property.id}`,
+                      propertyUrl: `/listings/${property.id}`,
                       agentName: "Agent", // Can fetch if needed
                       category: property.category as "house" | "land",
                       listingType: property.listing_type,
