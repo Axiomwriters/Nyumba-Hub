@@ -39,7 +39,7 @@ export function HeaderWrapper({
   return (
     <div
       className={cn(
-        "w-full border-b border-border/40 transition-all duration-150 ease-out",
+        "sticky top-0 z-50 w-full border-b border-border/40 transition-all duration-150 ease-out",
         isScrolled
           ? "bg-background/80 backdrop-blur-md shadow-md"
           : "bg-background shadow-sm"

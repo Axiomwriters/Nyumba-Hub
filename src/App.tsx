@@ -46,9 +46,8 @@ import GuestDashboard from "./pages/ShortStay/GuestDashboard";
 import TripDetails from "./pages/ShortStay/TripDetails";
 import SignInPage from "./pages/SignIn";
 import SignUpPage from "./pages/SignUp";
-import Redirect from "./pages/Redirect";
 import SSOCallback from "./pages/SSOCallback";
-
+import SyncPage from './pages/onboarding/sync';
 
 const queryClient = new QueryClient();
 
@@ -73,99 +72,91 @@ const App = () => {
                 <AuthProvider>
                   <ScrollToTopHandler />
                   <ScrollToTop />
-                  
+
                   <ErrorBoundary fallback={<div>Something went wrong. Please refresh.</div>}>
                     <Suspense fallback={<Preloader />}>
                       <Routes>
 
-                    {/* ─── Public Routes ─────────────────────────────── */}
-                    <Route element={<MainLayout />}>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/listings" element={<Listings />} />
-                      <Route path="/listings/:id" element={<PropertyDetail />} />
-                      <Route path="/explore/:category" element={<ExplorePage />} />
-                      <Route path="/affordability" element={<AffordabilityPage />} />
-                      <Route path="/shop/building-materials" element={<BuildingMaterialsShop />} />
-                    </Route>
+                        {/* ─── Onboarding ─────────────────────────────── */}
+                        <Route path="/onboarding/sync" element={<SyncPage />} />
 
-                    {/* ─── Auth Routes ────────────────────────────────── */}
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/auth/reset" element={<ResetPassword />} />
-                    <Route path="/sign-in/*" element={<SignInPage />} />
-                    <Route path="/sign-up/*" element={<SignUpPage />} />
-                    <Route path="/redirect" element={<Redirect />} />
-                    {/* OAuth SSO callback — must be public, no ProtectedRoute */}
-                    <Route path="/sso-callback" element={<SSOCallback />} />
+                        {/* ─── Public Routes ─────────────────────────────── */}
+                        <Route element={<MainLayout />}>
+                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/listings" element={<Listings />} />
+                          <Route path="/listings/:id" element={<PropertyDetail />} />
+                          <Route path="/explore/:category" element={<ExplorePage />} />
+                          <Route path="/affordability" element={<AffordabilityPage />} />
+                          <Route path="/shop/building-materials" element={<BuildingMaterialsShop />} />
+                        </Route>
+
+                        {/* ─── Auth Routes ────────────────────────────────── */}
+                        <Route path="/auth" element={<Auth />} />
+                        <Route path="/auth/reset" element={<ResetPassword />} />
+                        <Route path="/sign-in/*" element={<SignInPage />} />
+                        <Route path="/sign-up/*" element={<SignUpPage />} />
+                        {/* OAuth SSO callback — must be public, no ProtectedRoute */}
+                        <Route path="/sso-callback" element={<SSOCallback />} />
 
 
-                    {/* ─── Account Routes ─────────────────────────────── */}
-                    <Route path="/profile/settings" element={<UserProfileSettings />} />
-                    <Route path="/saved-properties" element={<SavedProperties />} />
-                    <Route path="/account/settings" element={<AccountSettings />} />
-                    <Route path="/agents/profile/:id" element={<AgentProfile />} />
+                        {/* ─── Account Routes ─────────────────────────────── */}
+                        <Route path="/profile/settings" element={<UserProfileSettings />} />
+                        <Route path="/saved-properties" element={<SavedProperties />} />
+                        <Route path="/account/settings" element={<AccountSettings />} />
+                        <Route path="/agents/profile/:id" element={<AgentProfile />} />
 
-                    {/* ─── Protected: Become Agent ────────────────────── */}
-                    <Route path="/become-agent" element={
-                      <ProtectedRoute>
-                        <BecomeAgent />
-                      </ProtectedRoute>
-                    } />
+                        {/* ─── Protected: Become Agent ────────────────────── */}
+                        <Route path="/become-agent" element={
+                          <ProtectedRoute>
+                            <BecomeAgent />
+                          </ProtectedRoute>
+                        } />
 
-                    {/* ─── Protected: Agent Dashboard ─────────────────── */}
-                    <Route path="/agent/*" element={
-                      <ProtectedRoute requiredRole="agent">
-                        <AgentDashboard />
-                      </ProtectedRoute>
-                    } />
+                        {/* ─── Protected: Agent Dashboard ─────────────────── */}
+                        <Route path="/dashboard/agent" element={
+                          <ProtectedRoute requiredRole="AGENT">
+                            <AgentDashboard />
+                          </ProtectedRoute>
+                        } />
 
-                    {/* ─── Protected: Professional Dashboard ─────────────────── */}
-                    <Route path="/professional/*" element={
-                      <ProtectedRoute requiredRole="professional">
-                        <ProfessionalDashboard />
-                      </ProtectedRoute>
-                    } />
+                        {/* ─── Protected: Host Dashboard ─────────────────── */}
+                        <Route path="/dashboard/short-stay" element={
+                          <ProtectedRoute requiredRole="HOST">
+                            <HostDashboard />
+                          </ProtectedRoute>
+                        } />
 
-                    {/* ─── Protected: Host Dashboard ───────────────────
-                         FIX: was requiredRole="agent", hosts have role="host" */}
-                    <Route path="/host/*" element={
-                      <ProtectedRoute requiredRole="host">
-                        <HostDashboard />
-                      </ProtectedRoute>
-                    } />
+                        {/* ─── Protected: Tenant Dashboard ─────────────────── */}
+                        <Route path="/dashboard/tenant" element={
+                          <ProtectedRoute requiredRole="TENANT">
+                            <Dashboard />
+                          </ProtectedRoute>
+                        } />
 
-                    {/* ─── Short Stay Routes ───────────────────────────── */}
-                    <Route path="/short-stay" element={<ShortStayLayout />}>
-                      <Route index element={<ShortStaySearch />} />
-                      <Route path=":id" element={<ShortStayDetails />} />
-                      <Route path="book/:id" element={<BookingCheckout />} />
-                      <Route path="confirmation" element={<BookingConfirmation />} />
-                      <Route path="trips" element={<GuestDashboard />} />
-                      <Route path="trips/:id" element={<TripDetails />} />
-                    </Route>
+                        {/* ─── Protected: Admin Dashboard ─────────────────── */}
+                        <Route path="/dashboard/admin" element={
+                          <ProtectedRoute requiredRole="ADMIN">
+                            <AdminDashboard />
+                          </ProtectedRoute>
+                        } />
 
-                    {/* ─── Admin Routes ───────────────────────────────────
-                         FIX: added /command-center and /admin/* routes
-                         Redirect.tsx sends admin to /command-center        */}
-                    <Route path="/admin-portal" element={<AdminLogin />} />
-                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                    <Route path="/admin/*" element={
-                      <ProtectedRoute requiredRole="admin">
-                        <AdminDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/command-center" element={
-                      <ProtectedRoute requiredRole="admin">
-                        <AdminDashboard />
-                      </ProtectedRoute>
-                    } />
+                        {/* ─── Short Stay Routes ───────────────────────────── */}
+                        <Route path="/short-stay" element={<ShortStayLayout />}>
+                          <Route index element={<ShortStaySearch />} />
+                          <Route path=":id" element={<ShortStayDetails />} />
+                          <Route path="book/:id" element={<BookingCheckout />} />
+                          <Route path="confirmation" element={<BookingConfirmation />} />
+                          <Route path="trips" element={<GuestDashboard />} />
+                          <Route path="trips/:id" element={<TripDetails />} />
+                        </Route>
 
-                    <Route path="/hydrate" element={<HydrateData />} />
-                    <Route path="/unauthorized" element={<Unauthorized />} />
-                    <Route path="*" element={<NotFound />} />
+                        <Route path="/hydrate" element={<HydrateData />} />
+                        <Route path="/unauthorized" element={<Unauthorized />} />
+                        <Route path="*" element={<NotFound />} />
 
-                   </Routes>
-                  </Suspense>
-                 </ErrorBoundary>
+                      </Routes>
+                    </Suspense>
+                  </ErrorBoundary>
                 </AuthProvider>
               </BrowserRouter>
             </LocationAgentProvider>

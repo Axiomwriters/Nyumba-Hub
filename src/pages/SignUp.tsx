@@ -14,7 +14,7 @@ import { setSelectedRole } from '@/utils/role-selection'; // Import the utility
 type Step = 'role' | 'credentials' | 'verify';
 
 const ROLES = [
-  { value: 'buyer',        label: ' Buyer / Renter',     desc: 'Browse & save properties' },
+  { value: 'tenant',        label: ' Buyer / Renter',     desc: 'Browse & save properties' },
   { value: 'agent',        label: ' Real Estate Agent',  desc: 'List & manage properties' },
   { value: 'host',         label: ' AirBnb Host',    desc: 'List vacation & short-stay rentals' },
   { value: 'professional', label: ' Professional',        desc: 'Offer property-related services' },
@@ -25,7 +25,7 @@ export default function SignUpPage() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>('role');
-  const [selectedRole, setRole] = useState('buyer'); // Renamed to avoid conflict
+  const [selectedRole, setRole] = useState('tenant');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -49,7 +49,7 @@ export default function SignUpPage() {
       await signUp.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: '/redirect',
+        redirectUrlComplete: '/onboarding/sync',
       });
     } catch (err: any) {
       toast.error(err.errors?.[0]?.message ?? 'Google sign-up failed');
@@ -92,7 +92,7 @@ export default function SignUpPage() {
       const result = await signUp.attemptEmailAddressVerification({ code });
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
-        navigate('/redirect', { replace: true });
+        navigate('/onboarding/sync', { replace: true });
       } else {
         toast.error('Verification incomplete. Check your code and try again.');
       }

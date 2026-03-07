@@ -1,4 +1,5 @@
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import logo from "/savanah-dwelling.png";
 
 export const Footer = () => {
   return (
@@ -13,9 +14,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-16">
           {/* Brand Section */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-              Savanah Dwelling
-            </h3>
+            <img src={logo} alt="Savanah Dwelling" className="h-16" />
             <p className="text-sm text-muted-foreground leading-relaxed">
               Your trusted partner in finding the perfect home. Making real estate dreams come true across Kenya.
             </p>

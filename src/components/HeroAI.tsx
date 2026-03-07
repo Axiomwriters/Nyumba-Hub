@@ -32,6 +32,9 @@ interface Message {
   options?: string[];
 }
 
+// Concurrency lock
+let isProcessing = false;
+
 export function HeroAI() {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -57,7 +60,7 @@ export function HeroAI() {
 
   const [messages, setMessages] = useState<Message[]>([
     {
-      role: 'ai', 
+      role: 'ai',
       content: "I am the Savanah Dwelling AI. Tell me what you're looking for, a home in Milimani/Kiamunyi, land in Njoro, or perhaps planning a new build?",
       mode: 'DISCOVERY'
     }
@@ -73,17 +76,24 @@ export function HeroAI() {
   }, [messages, isTyping]);
 
   const handleSearch = async (forcedValue?: string) => {
-    const query = forcedValue || inputRef.current;
-    if (!query.trim()) return;
+    if (isProcessing) {
+      toast.info("Still processing your previous request...");
+      return;
+    }
+    isProcessing = true;
 
-    const userMsg = query;
-    const lowerInput = userMsg.toLowerCase();
-    inputRef.current = "";
-    setInputValue("");
-    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
-    setIsTyping(true);
+    try {
+      const query = forcedValue || inputRef.current;
+      if (!query.trim()) return;
 
-    setTimeout(() => {
+      const userMsg = query;
+      const lowerInput = userMsg.toLowerCase();
+      inputRef.current = "";
+      setInputValue("");
+      setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+      setIsTyping(true);
+
+      await new Promise(resolve => setTimeout(resolve, 1200));
       setIsTyping(false);
 
       if (lowerInput === "hi" || lowerInput === "hello" || lowerInput === "hey") {
@@ -96,7 +106,7 @@ export function HeroAI() {
       }
 
       const isAffirmation = ["yes", "yes please", "okay", "sure", "go ahead", "that works", "ok", "please do"].includes(lowerInput.trim());
-      
+
       if (isAffirmation && pendingQuestion) {
         const choice = pendingQuestion.options[0]; // Least risky option
         setMessages(prev => [...prev, {
@@ -136,26 +146,17 @@ export function HeroAI() {
       }
 
       const detectedLoc = detectLocationFromText(userMsg);
-      
-      setConvoState(prev => {
-        const next = { ...prev };
-        if (detectedLoc) next.location = detectedLoc.name;
-        if (!next.location) next.location = "Nakuru";
-        if ((lowerInput.includes("buy") || lowerInput.includes("sale"))) next.intent = 'buy';
-        if ((lowerInput.includes("rent") || lowerInput.includes("lease"))) next.intent = 'rent';
-        if (lowerInput.includes("land") || lowerInput.includes("plot")) next.property_type = 'land';
-        else if (lowerInput.includes("house") || lowerInput.includes("apartment") || lowerInput.includes("mall") || lowerInput.includes("bungalow")) next.property_type = 'home';
-        const budgetMatch = userMsg.match(/(\d+(\.\d+)?)\s*(m|million|k|thousand)/i);
-        if (budgetMatch) next.budget = budgetMatch[0];
-        return next;
-      });
 
-      const currentState = {
-        ...convoState,
-        location: detectedLoc?.name || convoState.location || "Nakuru",
-        intent: (lowerInput.includes("buy") || lowerInput.includes("sale")) ? 'buy' : (lowerInput.includes("rent") || lowerInput.includes("lease")) ? 'rent' : convoState.intent,
-        property_type: (lowerInput.includes("land") || lowerInput.includes("plot")) ? 'land' : (lowerInput.includes("house") || lowerInput.includes("apartment") || lowerInput.includes("mall") || lowerInput.includes("bungalow")) ? 'home' : convoState.property_type
-      };
+      const updatedState = { ...convoState };
+      if (detectedLoc) updatedState.location = detectedLoc.name;
+      if (!updatedState.location) updatedState.location = "Nakuru";
+      if ((lowerInput.includes("buy") || lowerInput.includes("sale"))) updatedState.intent = 'buy';
+      if ((lowerInput.includes("rent") || lowerInput.includes("lease"))) updatedState.intent = 'rent';
+      if (lowerInput.includes("land") || lowerInput.includes("plot")) updatedState.property_type = 'land';
+      else if (lowerInput.includes("house") || lowerInput.includes("apartment") || lowerInput.includes("mall") || lowerInput.includes("bungalow")) updatedState.property_type = 'home';
+      const budgetMatch = userMsg.match(/(\d+(\.\d+)?)\s*(m|million|k|thousand)/i);
+      if (budgetMatch) updatedState.budget = budgetMatch[0];
+      setConvoState(updatedState);
 
       if (newMode === 'PROJECT') {
         if (lowerInput.includes("mall")) {
@@ -166,79 +167,79 @@ export function HeroAI() {
           }]);
           return;
         }
-        if (!currentState.property_type || (!lowerInput.includes("sqm") && !lowerInput.includes("standard") && !lowerInput.includes("commercial"))) {
+        if (!updatedState.property_type || (!lowerInput.includes("sqm") && !lowerInput.includes("standard") && !lowerInput.includes("commercial"))) {
           const msg = {
             role: 'ai' as MessageRole,
-            content: `Got it — a project in ${currentState.location}. Before I estimate costs or suggest materials, let's frame the project:`,
+            content: `Got it — a project in ${updatedState.location}. Before I estimate costs or suggest materials, let's frame the project:`,
             type: 'options' as const,
             options: ["Standard Size (approx 150sqm)", "Large Scale / Commercial", "I have my own dimensions"],
             mode: 'PROJECT' as GenieMode
           };
           setMessages(prev => [...prev, msg]);
-          setPendingQuestion({ type: 'project_scale', options: msg.options, context: currentState });
+          setPendingQuestion({ type: 'project_scale', options: msg.options, context: updatedState });
           return;
         }
       }
 
       if (newMode === 'ANALYTICAL') {
         if (lowerInput.includes("yield") && !lowerInput.includes("directional")) {
-           setMessages(prev => [...prev, {
-             role: 'ai',
-             content: "When people ask about yield in Nakuru, they’re usually comparing rental income versus land appreciation. Based on current demand signals, here’s how it generally breaks down — this is directional, not a guarantee.",
-             mode: 'ANALYTICAL'
-           }]);
+          setMessages(prev => [...prev, {
+            role: 'ai',
+            content: "When people ask about yield in Nakuru, they’re usually comparing rental income versus land appreciation. Based on current demand signals, here’s how it generally breaks down — this is directional, not a guarantee.",
+            mode: 'ANALYTICAL'
+          }]);
         }
         if (!lowerInput.includes("yield") && !lowerInput.includes("appreciation") && !lowerInput.includes("cash flow")) {
           const msg = {
             role: 'ai' as MessageRole,
-            content: `I've switched to Investor Mode for ${currentState.location}. To provide accurate insights, what is your primary objective?`,
+            content: `I've switched to Investor Mode for ${updatedState.location}. To provide accurate insights, what is your primary objective?`,
             type: 'options' as const,
             options: ["Maximize Rental Yield (%)", "Long-term Capital Appreciation", "Mixed-use Cash Flow"],
             mode: 'ANALYTICAL' as GenieMode
           };
           setMessages(prev => [...prev, msg]);
-          setPendingQuestion({ type: 'investor_objective', options: msg.options, context: currentState });
+          setPendingQuestion({ type: 'investor_objective', options: msg.options, context: updatedState });
           return;
         }
       }
 
-      if (newMode === 'DISCOVERY' && !currentState.intent) {
-        const msg = { 
-          role: 'ai' as MessageRole, 
-          content: `I've noted you're interested in ${currentState.location}. Are you looking to buy or rent?`,
+      if (newMode === 'DISCOVERY' && !updatedState.intent) {
+        const msg = {
+          role: 'ai' as MessageRole,
+          content: `I've noted you're interested in ${updatedState.location}. Are you looking to buy or rent?`,
           type: 'options' as const,
           options: ["I want to Buy", "I want to Rent"],
           mode: 'DISCOVERY' as GenieMode
         };
         setMessages(prev => [...prev, msg]);
-        setPendingQuestion({ type: 'intent_confirmation', options: msg.options, context: currentState });
+        setPendingQuestion({ type: 'intent_confirmation', options: msg.options, context: updatedState });
         return;
       }
 
       const isRefinementAnswer = ["closer to schools", "newer builds", "larger plots"].includes(lowerInput.trim());
       const filteredMocks = MOCK_GENIE_PROPERTIES.filter(p => {
-        if (currentState.location && !p.location.toLowerCase().includes(currentState.location.toLowerCase())) return false;
-        if (currentState.property_type === 'land') return p.type === 'land';
+        if (updatedState.location && !p.location.toLowerCase().includes(updatedState.location.toLowerCase())) return false;
+        if (updatedState.property_type === 'land') return p.type === 'land';
         return p.type === 'home';
       }).slice(0, 3);
 
       if (filteredMocks.length === 0 && newMode === 'DISCOVERY') {
-        const msg = { 
-          role: 'ai' as MessageRole, 
+        const msg = {
+          role: 'ai' as MessageRole,
           content: "I couldn't find an exact match for that specific criteria right now. Should we adjust the scope?",
           type: 'options' as const,
           options: ["Expand search area", "Adjust budget", "Try different property type"],
           mode: 'DISCOVERY' as GenieMode
         };
         setMessages(prev => [...prev, msg]);
-        setPendingQuestion({ type: 'adjust_search', options: msg.options, context: currentState });
+        setPendingQuestion({ type: 'adjust_search', options: msg.options, context: updatedState });
         return;
       }
 
-      setMessages(prev => [...prev, { 
-        role: 'ai', 
-        content: `Based on your request, here are the best matches in ${currentState.location}.`, 
-        mode: newMode 
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        content: `Based on your request, here are the best matches in ${updatedState.location}.`,
+        mode: newMode
       }]);
       filteredMocks.forEach((prop, i) => {
         setTimeout(() => {
@@ -246,29 +247,32 @@ export function HeroAI() {
           if (i === filteredMocks.length - 1) {
             if (!isRefinementAnswer) {
               setTimeout(() => {
-                setMessages(prev => [...prev, { 
-                  role: 'ai', 
-                  content: "Would you like to refine this search further?", 
+                setMessages(prev => [...prev, {
+                  role: 'ai',
+                  content: "Would you like to refine this search further?",
                   type: 'options',
                   options: ["Closer to schools", "Newer builds", "Larger plots"],
-                  mode: newMode 
+                  mode: newMode
                 }]);
               }, 500);
             } else {
               setTimeout(() => {
-                setMessages(prev => [...prev, { 
-                  role: 'ai', 
-                  content: "These matches incorporate your preference. Would you like to view more details for any of these, or should we look at a different area?", 
+                setMessages(prev => [...prev, {
+                  role: 'ai',
+                  content: "These matches incorporate your preference. Would you like to view more details for any of these, or should we look at a different area?",
                   type: 'options',
                   options: ["View more details", "Change area", "Change budget"],
-                  mode: newMode 
+                  mode: newMode
                 }]);
               }, 500);
             }
           }
         }, (i + 1) * 400);
       });
-    }, 1200);
+
+    } finally {
+      isProcessing = false;
+    }
   };
 
   const addToTrip = (id: string) => {
@@ -276,7 +280,7 @@ export function HeroAI() {
     setTripList(prev => [...prev, id]);
     toast.success("Added to trip!");
     setMessages(prev => [...prev, {
-      role: 'ai', 
+      role: 'ai',
       content: "Confirmed action. I've added this to your trip. We can coordinate a viewing or I can find a local representative to view it on your behalf.",
       mode: 'TRIP'
     }]);
@@ -312,7 +316,7 @@ export function HeroAI() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex gap-1 items-center">
             <div className="relative group">
               <button className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase transition-all hover:bg-primary/20">
@@ -350,10 +354,10 @@ export function HeroAI() {
                       <p className="font-bold border-b border-slate-200 dark:border-border/50 pb-2 mb-2">{msg.content}</p>
                       <div className="flex flex-col gap-2">
                         {msg.options.map((opt, i) => (
-                          <Button 
-                            key={i} 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            key={i}
+                            variant="outline"
+                            size="sm"
                             className="justify-start text-left h-auto py-2 text-[11px] font-bold border-primary/20 hover:bg-primary/5 hover:text-primary transition-all rounded-xl dark:border-primary/20 dark:hover:bg-primary/5 dark:hover:text-primary"
                             onClick={() => handleSearch(opt)}
                           >
@@ -481,7 +485,7 @@ export function HeroAI() {
               <Sparkles className="w-3.5 h-3.5" />
               AI-Powered Property Concierge
             </div>
-            
+
             <div className="space-y-4">
               <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
                 Find Homes & Land by <br />
