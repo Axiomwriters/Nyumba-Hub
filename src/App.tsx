@@ -1,5 +1,5 @@
 // src/App.tsx — COMPLETE FILE
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +13,7 @@ import { ScrollToTopHandler } from "@/components/ScrollToTopHandler";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { TripProvider } from "@/contexts/TripContext";
 import { LocationAgentProvider } from "@/contexts/LocationAgentContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Dashboard from "./pages/Dashboard";
 import ExplorePage from "./pages/ExplorePage";
 import BecomeAgent from "./pages/BecomeAgent";
