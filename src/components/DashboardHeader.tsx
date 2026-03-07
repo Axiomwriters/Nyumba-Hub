@@ -1,9 +1,19 @@
-// Find this block in DashboardHeader.tsx and replace:
-<div className="hidden lg:block">
-  <h1 className="text-lg sm:text-xl font-bold text-foreground group-hover:text-primary transition-colors whitespace-nowrap">
-    Savanah Dwelling
-  </h1>
-  <p className="text-xs text-muted-foreground whitespace-nowrap">
-    Nakuru's Premier Property Platform
-  </p>
-</div>
+import React from 'react';
+
+interface DashboardHeaderProps {
+  searchTerm: string;
+  onSearchChange: (term: string) => void;
+}
+
+export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ searchTerm, onSearchChange }) => {
+  return (
+    <div className="hidden lg:block">
+      <h1 className="text-lg sm:text-xl font-bold text-foreground group-hover:text-primary transition-colors whitespace-nowrap">
+        Savanah Dwelling
+      </h1>
+      <p className="text-xs text-muted-foreground whitespace-nowrap">
+        Nakuru's Premier Property Platform
+      </p>
+    </div>
+  );
+};
