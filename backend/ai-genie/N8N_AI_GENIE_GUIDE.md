@@ -1,4 +1,4 @@
-# 🧞 PATAHOME AI GENIE - n8n WORKFLOW IMPLEMENTATION
+# 🧞 SAVANAH GENIE - n8n WORKFLOW IMPLEMENTATION
 ## Complete Orchestration Layer for User Intent → Trusted Actions
 
 ---
@@ -19,7 +19,7 @@
 ## 🏗️ ARCHITECTURE OVERVIEW
 
 ### The Genie's Job (One Sentence)
-**Turn messy human intent into structured, trusted actions inside PataHome.**
+**Turn messy human intent into structured, trusted actions inside Savanah Dwelling.**
 
 ### System Flow
 
@@ -111,9 +111,9 @@ SUPABASE_SERVICE_KEY=your-service-role-key  # For admin operations
 # Webhook Security
 WEBHOOK_SECRET=your-random-secret-string
 
-# PataHome Backend
+# Savanah Dwelling Backend
 PATAHOME_ADMIN_EMAIL=[email protected]
-PATAHOME_FRONTEND_URL=https://patahome.co.ke
+PATAHOME_FRONTEND_URL=https://savanahdwelling.com
 ```
 
 ### Install Required n8n Nodes
@@ -128,7 +128,7 @@ Within n8n:
 
 ## 🧠 CORE WORKFLOW: MAIN GENIE BRAIN
 
-### Workflow Name: `PataHome_AI_Genie_Main`
+### Workflow Name: `Savanah_Dwelling_AI_Genie_Main`
 
 ### Node Structure Overview
 
@@ -340,7 +340,7 @@ return {
 
 **System Prompt:**
 ```
-You are PataHome's intent classification system. Analyze user messages and extract structured intent.
+You are Savanah Dwelling's intent classification system. Analyze user messages and extract structured intent.
 
 CONTEXT (from previous conversation):
 {{$json.context}}
@@ -539,7 +539,7 @@ return {
 
 **System Prompt:**
 ```
-You are the PataHome Genie. Generate a clear, professional explanation for property search results.
+You are the Savanah Genie. Generate a clear, professional explanation for property search results.
 
 USER CONTEXT:
 - Location: {{$json.context.location}}
@@ -639,7 +639,7 @@ Would you like me to help coordinate the viewing?"
 
 **System Prompt:**
 ```
-You are PataHome's investment analysis assistant. Provide neutral, data-driven insights.
+You are Savanah Dwelling's investment analysis assistant. Provide neutral, data-driven insights.
 
 MARKET DATA:
 {{$json.market_data}}
@@ -801,7 +801,7 @@ Here are key materials you'll need:`,
 
 1. Go to **Credentials** → **Create New**
 2. Select **HTTP Header Auth**
-3. Name: `Supabase PataHome`
+3. Name: `Supabase Savanah Dwelling`
 4. Add Headers:
    ```
    Authorization: Bearer {{$env.SUPABASE_SERVICE_KEY}}
@@ -966,7 +966,7 @@ curl ... -d '{
 1. Open each workflow in n8n
 2. Click **...** (menu) → **Download**
 3. Save as JSON files:
-   - `PataHome_AI_Genie_Main.json`
+   - `Savanah_Dwelling_AI_Genie_Main.json`
    - `DISCOVERY_Mode_Workflow.json`
    - `TRIP_Mode_Workflow.json`
    - `ANALYTICAL_Mode_Workflow.json`
