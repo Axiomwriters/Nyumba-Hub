@@ -33,6 +33,9 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   useSidebar,
+  SidebarTrigger,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
 } from "./ui/sidebar";
 
 const menuItems = [
@@ -120,10 +123,12 @@ export function AppSidebar({ onOpenProfile }: AppSidebarProps) {
   const { open: isSidebarOpen } = useSidebar();
 
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <img src="/logo.svg" alt="Savanah" className={cn("h-6", !isSidebarOpen && "sr-only")} />
+    <Sidebar collapsible variant="inset">
+      <SidebarHeader className="h-14 justify-between px-3">
+        <img src="/logo.svg" alt="PataHome" className={cn("h-6", !isSidebarOpen && "-ml-1 h-8 w-8")} />
+        <SidebarTrigger className="[&>svg]:size-5" />
       </SidebarHeader>
+
       <SidebarContent>
         <SidebarMenu>
           {menuItems.map((item) => {
@@ -132,44 +137,41 @@ export function AppSidebar({ onOpenProfile }: AppSidebarProps) {
 
             if (item.isCollapsible && item.items) {
               return (
-                <Collapsible key={item.title} asChild defaultOpen={isActive} className="group/collapsible">
-                  <>
+                <SidebarMenuItem key={item.title} asChild>
+                  <Collapsible defaultOpen={isActive}>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link to={item.url}>
-                          <item.icon className="w-5 h-5" />
-                          <span>{item.title}</span>
-                          <ChevronRight className="ml-auto w-4 h-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                        </Link>
+                      <SidebarMenuButton tooltip={item.title}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-90" />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="ml-4 mt-2 space-y-2">
-                      <SidebarMenu>
-                        {item.items.map((subItem) => {
-                          const isSubActive = location.pathname === subItem.url;
-                          return (
-                            <SidebarMenuItem key={subItem.title}>
-                              <SidebarMenuButton asChild isActive={isSubActive}>
-                                <Link to={subItem.url}>
-                                  <subItem.icon className="w-4 h-4 opacity-70" />
-                                  <span>{subItem.title}</span>
-                                </Link>
-                              </SidebarMenuButton>
-                            </SidebarMenuItem>
-                          );
-                        })}
-                      </SidebarMenu>
+                    <CollapsibleContent asChild>
+                      <SidebarMenuSub>
+                        {item.items.map((subItem) => (
+                          <SidebarMenuSubButton key={subItem.title} isActive={location.pathname === subItem.url} asChild>
+                            <Link to={subItem.url}>
+                              <subItem.icon />
+                              {subItem.title}
+                            </Link>
+                          </SidebarMenuSubButton>
+                        ))}
+                      </SidebarMenuSub>
                     </CollapsibleContent>
-                  </>
-                </Collapsible>
+                  </Collapsible>
+                </SidebarMenuItem>
               );
             }
 
             return (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild isActive={isDashboardActive || (isActive && !item.isCollapsible)}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isDashboardActive || (isActive && !item.isCollapsible)}
+                  tooltip={item.title}
+                >
                   <Link to={item.url}>
-                    <item.icon className="w-5 h-5" />
+                    <item.icon />
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -178,6 +180,7 @@ export function AppSidebar({ onOpenProfile }: AppSidebarProps) {
           })}
         </SidebarMenu>
       </SidebarContent>
+
       <SidebarFooter>
         <UserProfileCard onOpenProfile={onOpenProfile} isCollapsed={!isSidebarOpen} />
       </SidebarFooter>

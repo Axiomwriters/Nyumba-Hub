@@ -1,29 +1,19 @@
 
-// src/components/ProtectedRoute.tsx
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-
-// All valid role values that Clerk unsafeMetadata.role can hold
-type AppRole = 'buyer' | 'agent' | 'host' | 'professional' | 'admin';
+import { resolveDashboard } from "@/utils/roleRedirect";
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: AppRole;
-  redirectTo?: string;
 }
 
-export function ProtectedRoute({
-  children,
-  requiredRole,
-  redirectTo = '/sign-in'
-}: ProtectedRouteProps) {
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const location = useLocation();
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
 
-  // Still loading Clerk session
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -32,20 +22,20 @@ export function ProtectedRoute({
     );
   }
 
-  // Not authenticated → redirect to sign-in
   if (!isSignedIn) {
-    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+    return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
-  // Correctly get the role from unsafeMetadata
-  const userRole = user?.unsafeMetadata?.role as AppRole | undefined;
+  const role = user?.unsafeMetadata?.role as string;
 
-  // Role guard — admin always passes through
-  if (requiredRole && userRole !== requiredRole && userRole !== 'admin') {
-    // If the role is missing, it's a sign-up incompletion.
-    // Redirect to a page that can handle that, e.g., /redirect
-    if (!userRole) return <Navigate to="/redirect" replace />;
-    return <Navigate to="/unauthorized" replace />;
+  // If the user is on a page that is not their dashboard, redirect them.
+  const currentPath = location.pathname;
+  const destination = resolveDashboard(role);
+
+  if (currentPath !== destination) {
+    console.log(`Detected role: ${role}`)
+    console.log(`Redirecting to ${destination}`)
+    return <Navigate to={destination} replace />;
   }
 
   return <>{children}</>;

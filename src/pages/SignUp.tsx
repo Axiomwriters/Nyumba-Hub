@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, Home, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { setSelectedRole } from '@/utils/role-selection'; // Import the utility
+import { resolveDashboard } from '@/utils/roleRedirect';
 
 type Step = 'role' | 'credentials' | 'verify';
 
@@ -92,7 +93,11 @@ export default function SignUpPage() {
       const result = await signUp.attemptEmailAddressVerification({ code });
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
-        navigate('/onboarding/sync', { replace: true });
+        const role = result.unsafeMetadata.role as string;
+        console.log(`Detected role: ${role}`);
+        const destination = resolveDashboard(role);
+        console.log(`Redirecting → ${destination}`);
+        navigate(destination, { replace: true });
       } else {
         toast.error('Verification incomplete. Check your code and try again.');
       }

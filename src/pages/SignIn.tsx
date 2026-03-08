@@ -1,21 +1,31 @@
 // src/pages/SignIn.tsx — Headless Clerk with custom UI
-import { useSignIn } from '@clerk/clerk-react'
-import { useState } from 'react'
+import { useSignIn, useUser } from '@clerk/clerk-react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { Eye, EyeOff, Home, Loader2 } from 'lucide-react'
+import { resolveDashboard } from '@/utils/roleRedirect'
 
 export default function SignInPage() {
   const { isLoaded, signIn, setActive } = useSignIn()
+  const { user } = useUser();
   const navigate = useNavigate()
 
   const [email, setEmail]               = useState('')
   const [password, setPassword]         = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading]           = useState(false)
+
+  useEffect(() => {
+    if (user) {
+      const role = user.unsafeMetadata.role as string;
+      const destination = resolveDashboard(role);
+      navigate(destination, { replace: true });
+    }
+  }, [user, navigate]);
 
   /* ── Google OAuth ──────────────────────────────────── */
   const handleGoogleSignIn = async () => {
@@ -44,8 +54,14 @@ export default function SignInPage() {
         password,
       })
       if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId })
-        navigate('/redirect', { replace: true })
+        await setActive({ session: result.createdSessionId });
+        const user = result.createdSessionId ? await clerk.users.getUser(result.createdSessionId) : null;
+        const role = user ? user.unsafeMetadata.role as string : ''
+        console.log(`Detected role: ${role}`);
+        const destination = resolveDashboard(role);
+        console.log(`Redirecting → ${destination}`);
+        navigate(destination, { replace: true });
+
       } else {
         // Handle MFA or other factors if needed in future
         toast.error('Sign-in requires additional steps. Please contact support.')

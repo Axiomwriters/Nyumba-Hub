@@ -48,6 +48,7 @@ import SignInPage from "./pages/SignIn";
 import SignUpPage from "./pages/SignUp";
 import SSOCallback from "./pages/SSOCallback";
 import SyncPage from './pages/onboarding/sync';
+import RedirectPage from './pages/Redirect';
 
 const queryClient = new QueryClient();
 
@@ -82,10 +83,9 @@ const App = () => {
 
                         {/* ─── Public Routes ─────────────────────────────── */}
                         <Route element={<MainLayout />}>
-                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/explore/:category" element={<ExplorePage />} />
                           <Route path="/listings" element={<Listings />} />
                           <Route path="/listings/:id" element={<PropertyDetail />} />
-                          <Route path="/explore/:category" element={<ExplorePage />} />
                           <Route path="/affordability" element={<AffordabilityPage />} />
                           <Route path="/shop/building-materials" element={<BuildingMaterialsShop />} />
                         </Route>
@@ -95,8 +95,8 @@ const App = () => {
                         <Route path="/auth/reset" element={<ResetPassword />} />
                         <Route path="/sign-in/*" element={<SignInPage />} />
                         <Route path="/sign-up/*" element={<SignUpPage />} />
-                        {/* OAuth SSO callback — must be public, no ProtectedRoute */}
                         <Route path="/sso-callback" element={<SSOCallback />} />
+                        <Route path="/redirect" element={<RedirectPage />} />
 
 
                         {/* ─── Account Routes ─────────────────────────────── */}
@@ -105,38 +105,20 @@ const App = () => {
                         <Route path="/account/settings" element={<AccountSettings />} />
                         <Route path="/agents/profile/:id" element={<AgentProfile />} />
 
-                        {/* ─── Protected: Become Agent ────────────────────── */}
-                        <Route path="/become-agent" element={
+                        {/* ─── Protected Routes ────────────────────── */}
+                        <Route path="/dashboard" element={
                           <ProtectedRoute>
-                            <BecomeAgent />
-                          </ProtectedRoute>
-                        } />
-
-                        {/* ─── Protected: Agent Dashboard ─────────────────── */}
-                        <Route path="/dashboard/agent" element={
-                          <ProtectedRoute requiredRole="agent">
-                            <AgentDashboard />
-                          </ProtectedRoute>
-                        } />
-
-                        {/* ─── Protected: Host Dashboard ─────────────────── */}
-                        <Route path="/dashboard/short-stay" element={
-                          <ProtectedRoute requiredRole="host">
-                            <HostDashboard />
-                          </ProtectedRoute>
-                        } />
-
-                        {/* ─── Protected: Tenant Dashboard ─────────────────── */}
-                        <Route path="/dashboard/tenant" element={
-                          <ProtectedRoute requiredRole="tenant">
                             <Dashboard />
                           </ProtectedRoute>
                         } />
-
-                        {/* ─── Protected: Admin Dashboard ─────────────────── */}
-                        <Route path="/dashboard/admin" element={
-                          <ProtectedRoute requiredRole="admin">
-                            <AdminDashboard />
+                         <Route path="/professionalDashboard" element={
+                          <ProtectedRoute>
+                            <ProfessionalDashboard />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/become-agent" element={
+                          <ProtectedRoute>
+                            <BecomeAgent />
                           </ProtectedRoute>
                         } />
 
