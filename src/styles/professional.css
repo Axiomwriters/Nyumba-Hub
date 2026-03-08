@@ -1,8 +1,8 @@
 /* src/styles/professional.css */
 
 .professional-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: hsl(var(--background));
+  border-bottom: 1px solid hsl(var(--border));
   position: fixed;
   top: 0;
   left: 0;
@@ -22,11 +22,12 @@
 .professional-logo {
   font-size: 20px;
   font-weight: bold;
+  color: hsl(var(--foreground));
 }
 
 .professional-nav a {
   font-size: 14px;
-  color: #374151; /* text-gray-700 */
+  color: hsl(var(--muted-foreground));
   text-decoration: none;
   margin-left: 16px;
 }
@@ -39,15 +40,18 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 24px 64px 24px;
-  margin-top: 80px; /* Added margin to account for fixed header */
+  margin-top: 80px;
+  background: hsl(var(--background));
 }
 
 .professional-hero-title {
   font-size: 48px;
+  color: hsl(var(--foreground));
 }
 
 .professional-hero-description {
   font-size: 18px;
+  color: hsl(var(--muted-foreground));
 }
 
 .professional-hero-buttons {
