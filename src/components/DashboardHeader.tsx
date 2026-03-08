@@ -17,7 +17,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ searchTerm, onSearchC
   return (
     <div className="flex items-center justify-between w-full px-4 py-2 lg:px-6 border-b">
       <div className="flex items-center gap-2">
-       
+        <img src="/Savanahdwell.png" alt="Savanah Dwelling" className="h-8" />
       </div>
       {!hideSearchBar && (
         <div className="hidden md:flex flex-1 max-w-lg px-4">
