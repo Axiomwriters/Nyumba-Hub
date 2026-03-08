@@ -2,9 +2,11 @@
 import React from 'react';
 import DashboardHeader from '../../components/DashboardHeader';
 import { AgentSidebar } from '../../components/AgentSidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 const NewAgentDashboard: React.FC = () => {
   return (
+    <SidebarProvider>
       <div className="flex h-screen bg-gray-100">
         <AgentSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -17,6 +19,7 @@ const NewAgentDashboard: React.FC = () => {
             </main>
         </div>
       </div>
+    </SidebarProvider>
   );
 };
 
