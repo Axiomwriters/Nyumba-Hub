@@ -39,9 +39,7 @@ const SyncPage = () => {
   const roleRedirectPath = useMemo(() => getRoleRedirectPath(role), [role]);
 
   const checkSupabaseRecord = useCallback(async (): Promise<void> => {
-    if (!user) {
-      return;
-    }
+    if (!user) return;
 
     setStatus('checking');
 
@@ -69,9 +67,7 @@ const SyncPage = () => {
   }, [navigate, roleRedirectPath, user]);
 
   const handleRoleSelection = useCallback(async (nextRole: 'agent' | 'host'): Promise<void> => {
-    if (!user) {
-      return;
-    }
+    if (!user) return;
 
     setIsAssigningRole(true);
 
@@ -91,7 +87,7 @@ const SyncPage = () => {
           role: nextRole,
           onboarding_complete: false,
         },
-        { onConflict: 'clerk_user_id' },
+        { onConflict: 'clerk_user_id' }
       );
 
     if (error) {
@@ -103,10 +99,7 @@ const SyncPage = () => {
   }, [navigate, user]);
 
   useEffect(() => {
-    if (!isLoaded || !user || !role) {
-      return;
-    }
-
+    if (!isLoaded || !user || !role) return;
     void checkSupabaseRecord();
   }, [checkSupabaseRecord, isLoaded, role, user]);
 
