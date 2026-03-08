@@ -12,6 +12,8 @@ const MAX_RETRIES = 7;
 const BASE_BACKOFF_MS = 500;
 const MAX_BACKOFF_MS = 4000;
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 const getRoleRedirectPath = (role: AppRole) => {
   switch (role) {
     case 'agent':
@@ -36,7 +38,7 @@ const SyncPage = () => {
   const role = user?.unsafeMetadata?.role as AppRole;
   const roleRedirectPath = useMemo(() => getRoleRedirectPath(role), [role]);
 
-  const checkSupabaseRecord = useCallback(async () => {
+  const checkSupabaseRecord = useCallback(async (): Promise<void> => {
     if (!user) {
       return;
     }
@@ -60,18 +62,19 @@ const SyncPage = () => {
       }
 
       const backoffMs = Math.min(BASE_BACKOFF_MS * (2 ** attempt), MAX_BACKOFF_MS);
-      await new Promise(resolve => setTimeout(resolve, backoffMs));
+      await sleep(backoffMs);
     }
 
     setStatus('timeout');
   }, [navigate, roleRedirectPath, user]);
 
-  const handleRoleSelection = useCallback(async (nextRole: 'agent' | 'host') => {
+  const handleRoleSelection = useCallback(async (nextRole: 'agent' | 'host'): Promise<void> => {
     if (!user) {
       return;
     }
 
     setIsAssigningRole(true);
+
     await user.update({
       unsafeMetadata: {
         ...user.unsafeMetadata,
@@ -137,9 +140,7 @@ const SyncPage = () => {
             Your profile is taking longer than expected to provision. You can retry sync now or continue.
           </p>
           <div className="flex flex-col gap-2">
-            <Button onClick={() => void checkSupabaseRecord()}>
-              Retry profile sync
-            </Button>
+            <Button onClick={() => void checkSupabaseRecord()}>Retry profile sync</Button>
             <Button variant="outline" onClick={() => navigate(roleRedirectPath, { replace: true })}>
               Continue to dashboard
             </Button>
@@ -153,9 +154,7 @@ const SyncPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-3">
         <Loader2 className="w-10 h-10 mx-auto animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground animate-pulse">
-          Finalizing your account setup...
-        </p>
+        <p className="text-sm text-muted-foreground animate-pulse">Finalizing your account setup...</p>
       </div>
     </div>
   );
