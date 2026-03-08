@@ -4,7 +4,9 @@ import { useUser } from '@clerk/clerk-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AppRole, resolveRedirect } from '@/utils/AuthRedirectHandler';
+import { AppRole } from '@/utils/AuthRedirectHandler';
+import { resolveRoleFromMetadata } from '@/utils/roleRedirect';
+import { getSelectedRole, clearSelectedRole } from '@/utils/role-selection';
 
 type SyncStatus = 'checking' | 'timeout';
 
@@ -22,7 +24,7 @@ const SyncPage = () => {
 
   const role = user?.unsafeMetadata?.role as AppRole;
   const email = user?.primaryEmailAddress?.emailAddress;
-  const roleRedirectPath = useMemo(() => resolveRedirect(role), [role]);
+  const roleRedirectPath = useMemo(() => resolveRoleFromMetadata(role), [role]);
 
   const checkSupabaseRecord = useCallback(async (): Promise<void> => {
     if (!user || !email) return;
@@ -37,6 +39,8 @@ const SyncPage = () => {
         .maybeSingle();
 
       if (data?.email) {
+        console.log(`Detected role: ${role ?? 'buyer'}`);
+        console.log(`Redirecting \u2192 ${roleRedirectPath}`);
         navigate(roleRedirectPath, { replace: true });
         return;
       }
@@ -50,7 +54,7 @@ const SyncPage = () => {
     }
 
     setStatus('timeout');
-  }, [email, navigate, roleRedirectPath, user]);
+  }, [email, navigate, role, roleRedirectPath, user]);
 
   const handleRoleSelection = useCallback(async (nextRole: 'agent' | 'host' | 'professional' | 'tenant'): Promise<void> => {
     if (!user || !email) return;
@@ -82,13 +86,26 @@ const SyncPage = () => {
     }
 
     setIsAssigningRole(false);
-    navigate(resolveRedirect(nextRole), { replace: true });
+    const destination = resolveRoleFromMetadata(nextRole);
+    console.log(`Detected role: ${nextRole}`);
+    console.log(`Redirecting \u2192 ${destination}`);
+    navigate(destination, { replace: true });
   }, [email, navigate, user]);
 
   useEffect(() => {
     if (!isLoaded || !user || !role) return;
     void checkSupabaseRecord();
   }, [checkSupabaseRecord, isLoaded, role, user]);
+
+  useEffect(() => {
+    if (!isLoaded || !user || role) return;
+
+    const persistedRole = getSelectedRole();
+    if (persistedRole === 'agent' || persistedRole === 'host' || persistedRole === 'professional' || persistedRole === 'tenant') {
+      void handleRoleSelection(persistedRole);
+      clearSelectedRole();
+    }
+  }, [handleRoleSelection, isLoaded, role, user]);
 
   if (isLoaded && user && !role) {
     return (
