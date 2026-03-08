@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -130,7 +130,7 @@ const App = () => {
                         } />
 
                         {/* ─── Protected: Tenant Dashboard ─────────────────── */}
-                        <Route path="/Dashboard" element={
+                        <Route path="/dashboard" element={
                           <ProtectedRoute>
                             <Dashboard />
                           </ProtectedRoute>
@@ -142,7 +142,7 @@ const App = () => {
                           </ProtectedRoute>
                         } />
 
-                        <Route path="/ProfessionalDashboard/*" element={
+                        <Route path="/professionalDashboard/*" element={
                           <ProtectedRoute requiredRole="professional-tier">
                             <ProfessionalDashboard />
                           </ProtectedRoute>
@@ -165,6 +165,9 @@ const App = () => {
                           <Route path="trips/:id" element={<TripDetails />} />
                         </Route>
 
+
+                        <Route path="/Dashboard" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/ProfessionalDashboard/*" element={<Navigate to="/professionalDashboard" replace />} />
                         <Route path="/hydrate" element={<HydrateData />} />
                         <Route path="/unauthorized" element={<Unauthorized />} />
                         <Route path="*" element={<NotFound />} />
