@@ -86,7 +86,7 @@ export function AgentSidebar() {
     <Sidebar className="w-64 sticky top-0 h-screen border-r">
       <SidebarContent>
         <div className="flex justify-center p-6">
-            <img src="/logo.svg" alt="PataHome" className="h-10" />
+            <img src="/Savanahdwell.png" alt="Savanah Dwelling" className="h-10" />
         </div>
         <SidebarGroup>
           <SidebarGroupLabel>
