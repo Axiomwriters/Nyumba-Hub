@@ -26,8 +26,6 @@ export default function SignUpPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-
-
   const roleFromQuery = searchParams.get('role');
   const isPresetRole = roleFromQuery === 'agent' || roleFromQuery === 'host';
 
@@ -41,19 +39,17 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     if (isPresetRole) {
       setSelectedRole(selectedRole);
     }
   }, [isPresetRole, selectedRole]);
 
-  /* ── STEP 1: Role selection ─────────────────────────── */
   const handleRoleContinue = () => {
     setSelectedRole(selectedRole); // Use the utility
     setStep('credentials');
   };
 
-  /* ── STEP 2a: Google OAuth ──────────────────────────── */
   const handleGoogleSignUp = async () => {
     if (!isLoaded) return;
     setLoading(true);
@@ -70,7 +66,6 @@ export default function SignUpPage() {
     }
   };
 
-  /* ── STEP 2b: Email / Password ──────────────────────── */
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded) return;
@@ -96,7 +91,6 @@ export default function SignUpPage() {
     }
   };
 
-  /* ── STEP 3: Verify email code ──────────────────────── */
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded) return;
@@ -105,11 +99,16 @@ export default function SignUpPage() {
       const result = await signUp.attemptEmailAddressVerification({ code });
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
-        const role = result.unsafeMetadata.role as string;
+
+        // Use the unsafeMetadata from the verification result
+        const role = result.unsafeMetadata?.role as string;
         console.log(`Detected role: ${role}`);
+
         const destination = resolveDashboard(role);
         console.log(`Redirecting → ${destination}`);
+
         navigate(destination, { replace: true });
+
       } else {
         toast.error('Verification incomplete. Check your code and try again.');
       }
@@ -120,10 +119,8 @@ export default function SignUpPage() {
     }
   };
 
-  /* ── Shared layout wrapper ──────────────────────────── */
   const Shell = ({ children }: { children: React.ReactNode }) => (
     <div className="min-h-screen flex bg-background">
-      {/* Left column */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 lg:p-16">
         <div className="max-w-md mx-auto w-full">
           <Link to="/" className="flex items-center gap-2 mb-10 group w-fit">
@@ -135,7 +132,6 @@ export default function SignUpPage() {
           {children}
         </div>
       </div>
-      {/* Right column — branding */}
       <div className="hidden lg:flex w-1/2 bg-[#0a0a0a] relative overflow-hidden items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-40"
@@ -148,14 +144,13 @@ export default function SignUpPage() {
           <p className="text-gray-400 text-lg leading-relaxed">
             Kenya's most trusted real estate ecosystem. Buyers, agents, hosts, and professionals — all in one place.
           </p>
-          <p className="text-gray-500 text-sm mt-4">Powered by Kenya Prime Dwellings · PataHome</p>
+          <p className="text-gray-500 text-sm mt-4">Powered by Savanah Dwelling</p>
         </div>
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-[100px] animate-pulse" />
       </div>
     </div>
   );
 
-  /* ── RENDER: Step 1 — Role ──────────────────────────── */
   if (step === 'role') {
     return (
       <Shell>
@@ -167,7 +162,7 @@ export default function SignUpPage() {
             <button
               key={r.value}
               type="button"
-              onClick={() => setRole(r.value)} // Use renamed state setter
+              onClick={() => setRole(r.value)}
               className={cn(
                 'flex items-start gap-3 p-3 rounded-xl border text-left transition-all',
                 selectedRole === r.value
@@ -199,7 +194,6 @@ export default function SignUpPage() {
     );
   }
 
-  /* ── RENDER: Step 2 — Credentials ───────────────────── */
   if (step === 'credentials') {
     return (
       <Shell>
@@ -211,7 +205,6 @@ export default function SignUpPage() {
           Signing up as <span className="font-medium text-foreground capitalize">{selectedRole}</span>
         </p>
 
-        {/* Google OAuth */}
         <Button
           variant="outline"
           className="w-full h-11 gap-2 mb-4"
@@ -284,7 +277,6 @@ export default function SignUpPage() {
     );
   }
 
-  /* ── RENDER: Step 3 — Verify ─────────────────────────── */
   return (
     <Shell>
       <h1 className="text-2xl font-bold mb-1">Check your email</h1>

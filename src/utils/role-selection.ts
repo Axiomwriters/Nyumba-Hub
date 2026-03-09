@@ -1,17 +1,20 @@
-
-// src/utils/role-selection.ts
-import Cookies from 'js-cookie';
+const ROLE_STORAGE_KEY = 'selected_signup_role';
 
 export const setSelectedRole = (role: string) => {
-  localStorage.setItem('selectedRole', role);
-  Cookies.set('selectedRole', role, { expires: 1 }); // Expires in 1 day
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorage.setItem(ROLE_STORAGE_KEY, role);
+  }
 };
 
-export const getSelectedRole = () => {
-  return Cookies.get('selectedRole') || localStorage.getItem('selectedRole');
+export const getSelectedRole = (): string | null => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return localStorage.getItem(ROLE_STORAGE_KEY);
+  }
+  return null;
 };
 
 export const clearSelectedRole = () => {
-  localStorage.removeItem('selectedRole');
-  Cookies.remove('selectedRole');
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorage.removeItem(ROLE_STORAGE_KEY);
+  }
 };

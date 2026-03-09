@@ -55,13 +55,7 @@ export default function SignInPage() {
       })
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
-        const user = result.createdSessionId ? await clerk.users.getUser(result.createdSessionId) : null;
-        const role = user ? user.unsafeMetadata.role as string : ''
-        console.log(`Detected role: ${role}`);
-        const destination = resolveDashboard(role);
-        console.log(`Redirecting → ${destination}`);
-        navigate(destination, { replace: true });
-
+        // The useEffect hook will handle the redirect
       } else {
         // Handle MFA or other factors if needed in future
         toast.error('Sign-in requires additional steps. Please contact support.')
@@ -166,7 +160,7 @@ export default function SignInPage() {
           <p className="text-gray-400 text-lg leading-relaxed">
             Join thousands of Kenyans buying, renting, and managing properties on Savanah Dwelling.
           </p>
-          <p className="text-gray-500 text-sm mt-4">Powered by Kenya Prime Dwellings · PataHome</p>
+          <p className="text-gray-500 text-sm mt-4">Savanah Dwelling</p>
         </div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary/20 rounded-full blur-[100px] animate-pulse" />
       </div>

@@ -7,7 +7,7 @@ import {
 import { createContext, useContext, useState, ReactNode, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { AppRole, isProfessionalTier } from "@/utils/AuthRedirectHandler";
+import { AppRole, isProfessionalTier } from "@/utils/roleRedirect";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface AuthContextType {

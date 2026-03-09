@@ -2,8 +2,7 @@ import { useAuth, useUser } from '@clerk/clerk-react';
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import { AppRole, isProfessionalTier } from '@/utils/AuthRedirectHandler';
-import { resolveRoleFromMetadata } from '@/utils/roleRedirect';
+import { AppRole, isProfessionalTier, resolveRoleFromMetadata } from '@/utils/roleRedirect';
 
 type RequiredRole = Exclude<AppRole, null | undefined> | 'professional-tier';
 
