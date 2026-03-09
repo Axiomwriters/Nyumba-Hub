@@ -14,7 +14,7 @@ import {
 import { ChevronDown } from 'lucide-react';
 
 const ProfessionalHeader = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userRole } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -31,9 +31,11 @@ const ProfessionalHeader = () => {
   };
 
   const handleDashboard = () => {
-    // This assumes a default or primary dashboard for the authenticated user
-    // You might want to refine this based on the user's actual role
-    navigate('/agent/dashboard');
+    if (userRole === 'host') {
+      navigate('/dashboard/short-stay');
+    } else {
+      navigate('/agent/dashboard');
+    }
   };
 
   return (
