@@ -590,7 +590,7 @@ export default function BuildingMaterialsShop() {
                   
                   {/* Decorative Floating Element */}
                   <div className="absolute bottom-10 right-10 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-                  <div className="absolute top-10 right-20 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-bounce duration-[5s]" />
+                  <div className="absolute top-10 right-20 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-bounce duration-[5000ms]" />
                 </div>
               </section>
             </div>
