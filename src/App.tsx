@@ -1,6 +1,6 @@
 
 // src/App.tsx — CORRECTED FILE
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,41 +15,52 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { TripProvider } from "@/contexts/TripContext";
 import { LocationAgentProvider } from "@/contexts/LocationAgentContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import Dashboard from "./pages/Dashboard";
-import ExplorePage from "./pages/ExplorePage";
-import BecomeAgent from "./pages/BecomeAgent";
-import HydrateData from "./pages/HydrateData";
-import Listings from "./pages/Listings";
-import PropertyDetail from "./pages/PropertyDetail";
-import AffordabilityPage from "./pages/AffordabilityPage";
-import AdminDashboard from "./pages/AdminDashboard";
-import Auth from "./pages/Auth";
-import ResetPassword from "./pages/ResetPassword";
-import AgentDashboard from "./pages/AgentDashboard";
-import NewAgentDashboard from "./pages/AgentDashboard/NewAgentDashboard";
-import AgentProfile from "./pages/AgentProfile";
-import ProfessionalDashboard from "./pages/ProfessionalDashboard";
-import Unauthorized from "./pages/Unauthorized";
-import NotFound from "./pages/NotFound";
-import HostDashboard from "./pages/HostDashboard";
+
+// Layouts
 import MainLayout from "@/components/MainLayout";
-import UserProfileSettings from "./pages/UserProfileSettings";
-import SavedProperties from "./pages/SavedProperties";
-import AccountSettings from "./pages/AccountSettings";
-import BuildingMaterialsShop from "./pages/Shop/BuildingMaterialsShop";
 import ShortStayLayout from "@/components/layouts/ShortStayLayout";
-import ShortStaySearch from "./pages/ShortStay/ShortStaySearch";
-import ShortStayDetails from "./pages/ShortStay/ShortStayDetails";
-import BookingCheckout from "./pages/ShortStay/BookingCheckout";
-import BookingConfirmation from "./pages/ShortStay/BookingConfirmation";
-import GuestDashboard from "./pages/ShortStay/GuestDashboard";
-import TripDetails from "./pages/ShortStay/TripDetails";
-import ProfessionalLanding from "./pages/ProfessionalLanding";
-import SignInPage from "./pages/SignIn";
-import SignUpPage from "./pages/SignUp";
-import SSOCallback from "./pages/SSOCallback";
-import SyncPage from './pages/onboarding/sync';
-import RedirectPage from './pages/Redirect';
+import AgentDashboardLayout from "./pages/AgentDashboard/AgentDashboardLayout";
+
+// Page Components (sorted alphabetically)
+const AccountSettings = lazy(() => import("./pages/AccountSettings"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AffordabilityPage = lazy(() => import("./pages/AffordabilityPage"));
+const AgentDashboard = lazy(() => import("./pages/AgentDashboard"));
+const AgentProfile = lazy(() => import("./pages/AgentProfile"));
+const AgentSettings = lazy(() => import("./pages/AgentDashboard/AgentSettings"));
+const AgentTrips = lazy(() => import("./pages/AgentDashboard/AgentTrips"));
+const Auth = lazy(() => import("./pages/Auth"));
+const BecomeAgent = lazy(() => import("./pages/BecomeAgent"));
+const BookingCheckout = lazy(() => import("./pages/ShortStay/BookingCheckout"));
+const BookingConfirmation = lazy(() => import("./pages/ShortStay/BookingConfirmation"));
+const BuildingMaterialsShop = lazy(() => import("./pages/Shop/BuildingMaterialsShop"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const ExplorePage = lazy(() => import("./pages/ExplorePage"));
+const GuestDashboard = lazy(() => import("./pages/ShortStay/GuestDashboard"));
+const HostDashboard = lazy(() => import("./pages/HostDashboard"));
+const HydrateData = lazy(() => import("./pages/HydrateData"));
+const Listings = lazy(() => import("./pages/Listings"));
+const MyListings = lazy(() => import("./pages/AgentDashboard/MyListings"));
+const NewAgentDashboard = lazy(() => import("./pages/AgentDashboard/NewAgentDashboard"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Notifications = lazy(() => import("./pages/AgentDashboard/Notifications"));
+const ProfessionalDashboard = lazy(() => import("./pages/ProfessionalDashboard"));
+const ProfessionalLanding = lazy(() => import("./pages/ProfessionalLanding"));
+const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
+const RedirectPage = lazy(() => import('./pages/Redirect'));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const SSOCallback = lazy(() => import("./pages/SSOCallback"));
+const SavedProperties = lazy(() => import("./pages/SavedProperties"));
+const ShortStayDetails = lazy(() => import("./pages/ShortStay/ShortStayDetails"));
+const ShortStaySearch = lazy(() => import("./pages/ShortStay/ShortStaySearch"));
+const SignInPage = lazy(() => import("./pages/SignIn"));
+const SignUpPage = lazy(() => import("./pages/SignUp"));
+const SyncPage = lazy(() => import('./pages/onboarding/sync'));
+const TripDetails = lazy(() => import("./pages/ShortStay/TripDetails"));
+const Unauthorized = lazy(() => import("./pages/Unauthorized"));
+const UserProfileSettings = lazy(() => import("./pages/UserProfileSettings"));
+const AgentDashboardProfile = lazy(() => import("./pages/AgentDashboard/AgentProfile"));
+
 
 const queryClient = new QueryClient();
 
@@ -105,15 +116,25 @@ const App = () => {
                         <Route path="/account/settings" element={<AccountSettings />} />
                         <Route path="/agents/profile/:id" element={<AgentProfile />} />
 
-                        {/* --- Protected Dashboards --- */}
+                        {/* --- Legacy/Protected Dashboards (Review & Refactor) --- */}
                         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                         <Route path="/professionalDashboard" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
                         <Route path="/become-agent" element={<ProtectedRoute><BecomeAgent /></ProtectedRoute>} />
                         <Route path="/dashboard/agent" element={<ProtectedRoute><AgentDashboard /></ProtectedRoute>} />
-                        <Route path="/agent/dashboard" element={<ProtectedRoute><NewAgentDashboard /></ProtectedRoute>} />
                         <Route path="/dashboard/short-stay" element={<ProtectedRoute><HostDashboard /></ProtectedRoute>} />
                         <Route path="/dashboard/tenant" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                         <Route path="/dashboard/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+
+                        {/* --- New Agent Dashboard Layout --- */}
+                        <Route path="/agent" element={<ProtectedRoute><AgentDashboardLayout /></ProtectedRoute>}>
+                          <Route index element={<Navigate to="dashboard" replace />} />
+                          <Route path="dashboard" element={<NewAgentDashboard />} />
+                          <Route path="profile" element={<AgentDashboardProfile />} />
+                          <Route path="listings" element={<MyListings />} />
+                          <Route path="trips" element={<AgentTrips />} />
+                          <Route path="notifications" element={<Notifications />} />
+                          <Route path="settings" element={<AgentSettings />} />
+                        </Route>
 
                         {/* --- Short Stay Routes --- */}
                         <Route path="/short-stay" element={<ShortStayLayout />}>
