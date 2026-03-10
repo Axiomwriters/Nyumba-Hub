@@ -11,6 +11,8 @@ import {
   Bell,
   Settings,
   ArrowLeft,
+  HelpCircle,
+  Mail,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SponsoredSpotlight } from "./agent-sidebar-widgets/SponsoredSpotlight";
@@ -23,6 +25,11 @@ const mainItems = [
   { title: "Trips & Viewings", url: "trips", icon: Map },
   { title: "Notifications", url: "notifications", icon: Bell },
   { title: "Settings", url: "settings", icon: Settings },
+];
+
+const supportItems = [
+    { title: "Help Center", url: "help-center", icon: HelpCircle },
+    { title: "Contact Support", url: "mailto:support@savanahdwelling.com", icon: Mail },
 ];
 
 interface AgentSidebarContentProps {
@@ -85,6 +92,21 @@ export function AgentSidebarContent({ onNavigate }: AgentSidebarContentProps = {
               </Badge>
             )}
           </NavLink>
+        ))}
+        
+        <p className="px-3 pt-4 pb-2 text-xs font-semibold text-muted-foreground tracking-wider uppercase">
+          Help & Support
+        </p>
+        {supportItems.map((item) => (
+          <a
+            key={item.title}
+            href={item.url}
+            onClick={onNavigate}
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors text-foreground/70 hover:bg-muted hover:text-foreground"
+          >
+            <item.icon className="w-4 h-4 shrink-0" />
+            <span>{item.title}</span>
+          </a>
         ))}
       </nav>
       <div className="shrink-0 border-t px-3 py-4 space-y-3">
