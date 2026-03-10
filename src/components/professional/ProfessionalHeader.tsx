@@ -14,7 +14,7 @@ import {
 import { ChevronDown } from 'lucide-react';
 
 const ProfessionalHeader = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userRole } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -23,7 +23,11 @@ const ProfessionalHeader = () => {
   };
 
   const handleDashboard = () => {
-    navigate('/professional');
+    if (userRole === 'host') {
+      navigate('/dashboard/short-stay');
+    } else {
+      navigate('/agent/dashboard');
+    }
   };
 
   return (
