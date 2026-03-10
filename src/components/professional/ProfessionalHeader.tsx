@@ -26,7 +26,7 @@ const ProfessionalHeader = () => {
     if (userRole === 'host') {
       navigate('/dashboard/short-stay');
     } else {
-      navigate('/agent/dashboard');
+      navigate('/agent');
     }
   };
 

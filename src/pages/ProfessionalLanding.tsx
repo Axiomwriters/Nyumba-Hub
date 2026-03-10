@@ -19,7 +19,7 @@ const ProfessionalLanding = () => {
   const handleSignup = (role: 'agent' | 'host') => {
     if (isAuthenticated) {
       if (role === 'agent') {
-        navigate('/agent/dashboard', { replace: true });
+        navigate('/agent', { replace: true });
       } else {
         navigate('/dashboard/short-stay', { replace: true });
       }
